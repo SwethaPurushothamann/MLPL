@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>New Order Entry - Micro Labels Pvt Ltd</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 2vw;
+      background-color: #f4f4f4;
+      color: #333;
+      font-size: 1.1rem;
+    }
+    h1 {
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .form-section {
+      background-color: #fff;
+      padding: 2rem;
+      border-radius: 10px;
+      max-width: 900px;
+      margin: 0 auto 2rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    input, textarea, button, select {
+      width: 100%;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 0.3rem;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #fff;
+      margin-top: 2rem;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    th, td {
+      padding: 1rem;
+      border: 1px solid #ccc;
+      text-align: left;
+    }
+    th {
+      background-color: #007bff;
+      color: white;
+    }
+    .color-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 0.5rem;
+    }
+    .color-row input[type="color"] {
+      width: 50px;
+      padding: 0;
+    }
+    #orderCount {
+      text-align: center;
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>New Order Entry</h1>
+  <div class="form-section">
+    <label for="customer">Customer Name</label>
+    <input type="text" id="customer" placeholder="Enter customer name" />
+
+    <label for="partNumber">Part Number</label>
+    <input type="text" id="partNumber" placeholder="Enter part number" />
+
+    <label for="productName">Product Name</label>
+    <input type="text" id="productName" placeholder="Enter product name" />
+
+    <fieldset>
+      <legend><strong>Materials Required</strong></legend>
+      <label for="frontCard">Front Card</label>
+      <textarea id="frontCard" placeholder="Front card requirement"></textarea>
+
+      <label for="backCard">Back Card</label>
+      <textarea id="backCard" placeholder="Back card requirement"></textarea>
+
+      <label for="adhesive">Adhesive</label>
+      <textarea id="adhesive" placeholder="Adhesive requirement"></textarea>
+
+      <label for="lamination">Lamination</label>
+      <textarea id="lamination" placeholder="Lamination requirement"></textarea>
+    </fieldset>
+
+    <label for="colorCount">Number of Colors Required</label>
+    <input type="number" id="colorCount" placeholder="Enter number of colors" oninput="renderColorInputs()" />
+    <div id="colorInputs"></div>
+
+    <label for="screenCount">Number of Screens Required</label>
+    <input type="number" id="screenCount" placeholder="Enter number of screens" />
+
+    <label for="orderDate">Order Placed Date</label>
+    <input type="date" id="orderDate" />
+
+    <label for="dueDate">Due Date</label>
+    <input type="date" id="dueDate" />
+
+    <button onclick="addOrder()">Add Order</button>
+  </div>
+
+  <input type="text" id="searchInput" placeholder="Search orders..." oninput="displayOrders()" style="width: 100%; padding: 1rem; font-size: 1rem;"/>
+
+  <table id="ordersTable">
+    <thead>
+      <tr>
+        <th>Customer</th>
+        <th>Part Number</th>
+        <th>Product Name</th>
+        <th>Front</th>
+        <th>Back</th>
+        <th>Adhesive</th>
+        <th>Lamination</th>
+        <th>Colors</th>
+        <th>Screens</th>
+        <th>Order Date</th>
+        <th>Due Date</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div style="text-align: center; margin-top: 2rem;">
+    <button onclick="exportToPDF(true)" style="padding: 0.7rem 1.5rem; margin: 0.5rem; background-color: slategray; color: white; border: none; border-radius: 5px;">Export Filtered to PDF</button>
+    <button onclick="exportToExcel(true)" style="padding: 0.7rem 1.5rem; margin: 0.5rem; background-color: slategrey; color: white; border: none; border-radius: 5px;">Export Filtered to Excel</button>
+  </div>
+
+  <div id="orderCount"></div>
+  <div style="text-align: right; margin-bottom: 1rem;">
+  <button onclick="window.location.href='staff.html'" style="padding: 0.7rem 1.5rem; background-color:#28a745 ; color: white; border: none; border-radius: 5px;">Back to Staff Dashboard Menu</button>
+</div>
+
+
+  <script>
+    function renderColorInputs() {
+      const count = parseInt(document.getElementById('colorCount').value);
+      const container = document.getElementById('colorInputs');
+      container.innerHTML = '';
+      if (!isNaN(count) && count > 0) {
+        for (let i = 0; i < count; i++) {
+          const row = document.createElement('div');
+          row.className = 'color-row';
+          row.innerHTML = `
+            <input type="color" class="color-picker" />
+            <input type="text" class="color-name" placeholder="Color ${i + 1} name/code" />
+          `;
+          container.appendChild(row);
+        }
+        syncColorInputs();
+      }
+    }
+
+    function syncColorInputs() {
+      const pickers = document.querySelectorAll('.color-picker');
+      const names = document.querySelectorAll('.color-name');
+      pickers.forEach((picker, i) => {
+        picker.addEventListener('input', () => {
+          names[i].value = picker.value;
+        });
+      });
+      names.forEach((input, i) => {
+        input.addEventListener('input', () => {
+          const val = input.value.trim();
+          const isHex = /^#([0-9A-F]{3}){1,2}$/i.test(val);
+          const temp = document.createElement('div');
+          temp.style.color = val;
+          if (isHex || temp.style.color) {
+            try {
+              const ctx = document.createElement('canvas').getContext('2d');
+              ctx.fillStyle = val;
+              pickers[i].value = ctx.fillStyle;
+            } catch {}
+          }
+        });
+      });
+    }
+
+    function addOrder() {
+      const colors = Array.from(document.querySelectorAll('.color-name')).map(input => input.value.trim()).filter(Boolean);
+      const order = {
+        customer: document.getElementById('customer').value.trim(),
+        partNumber: document.getElementById('partNumber').value.trim(),
+        productName: document.getElementById('productName').value.trim(),
+        frontCard: document.getElementById('frontCard').value.trim(),
+        backCard: document.getElementById('backCard').value.trim(),
+        adhesive: document.getElementById('adhesive').value.trim(),
+        lamination: document.getElementById('lamination').value.trim(),
+        colors,
+        screenCount: document.getElementById('screenCount').value,
+        orderDate: document.getElementById('orderDate').value,
+        dueDate: document.getElementById('dueDate').value
+      };
+      const orders = JSON.parse(localStorage.getItem('orderEntries')) || [];
+      orders.push(order);
+      localStorage.setItem('orderEntries', JSON.stringify(orders));
+      displayOrders();
+    }
+
+    function getFilteredOrders() {
+      const search = (document.getElementById('searchInput')?.value || '').toLowerCase();
+      const all = JSON.parse(localStorage.getItem('orderEntries')) || [];
+      if (!search) return all;
+      return all.filter(o => Object.values(o).some(val => (val + '').toLowerCase().includes(search)));
+    }
+
+    function displayOrders() {
+      const tableBody = document.querySelector('#ordersTable tbody');
+      const orders = getFilteredOrders();
+      tableBody.innerHTML = '';
+      orders.forEach(order => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${order.customer}</td>
+          <td>${order.partNumber}</td>
+          <td>${order.productName}</td>
+          <td>${order.frontCard}</td>
+          <td>${order.backCard}</td>
+          <td>${order.adhesive}</td>
+          <td>${order.lamination}</td>
+          <td>${order.colors.join(', ')}</td>
+          <td>${order.screenCount}</td>
+          <td>${order.orderDate}</td>
+          <td>${order.dueDate}</td>
+        `;
+        tableBody.appendChild(row);
+      });
+      updateOrderCount();
+    }
+
+    function updateOrderCount() {
+      const count = getFilteredOrders().length;
+      document.getElementById('orderCount').innerText = `Total Orders Displayed: ${count}`;
+    }
+
+    function exportToPDF(filtered = false) {
+      const orders = filtered ? getFilteredOrders() : JSON.parse(localStorage.getItem('orderEntries')) || [];
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      doc.setFontSize(18);
+      doc.text("Micro Labels Pvt Ltd - Orders", 14, 16);
+      doc.setFontSize(12);
+
+      const rows = orders.map(order => [
+        order.customer,
+        order.partNumber,
+        order.productName,
+        order.frontCard,
+        order.backCard,
+        order.adhesive,
+        order.lamination,
+        (order.colors || []).join(', '),
+        order.screenCount,
+        order.orderDate,
+        order.dueDate
+      ]);
+
+      doc.autoTable({
+        head: [["Customer", "Part #", "Product Name", "Front", "Back", "Adhesive", "Lamination", "Colors", "Screens", "Order Date", "Due Date"]],
+        body: rows,
+        startY: 22,
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [0, 123, 255] }
+      });
+
+      doc.save("orders.pdf");
+    }
+
+    function exportToExcel(filtered = false) {
+      const orders = filtered ? getFilteredOrders() : JSON.parse(localStorage.getItem('orderEntries')) || [];
+      const sheetData = [
+        ["Customer", "Part Number", "Product Name", "Front Card", "Back Card", "Adhesive", "Lamination", "Colors", "Screens", "Order Date", "Due Date"],
+        ...orders.map(order => [
+          order.customer,
+          order.partNumber,
+          order.productName,
+          order.frontCard,
+          order.backCard,
+          order.adhesive,
+          order.lamination,
+          (order.colors || []).join(', '),
+          order.screenCount,
+          order.orderDate,
+          order.dueDate
+        ])
+      ];
+
+      const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Orders");
+      XLSX.writeFile(workbook, "orders.xlsx");
+    }
+
+    window.onload = displayOrders;
+    document.addEventListener('input', e => {
+      if (e.target.id === 'searchInput') displayOrders();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Staff Dashboard - Micro Labels Pvt Ltd</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 2vw;
+      background-color: #f4f4f4;
+      color: #333;
+      font-size: 1.1rem; /* slightly larger base font */
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2.2rem;
+      margin-bottom: 2rem;
+    }
+
+    .menu-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .menu-buttons button {
+      flex: 1 1 260px;
+      padding: 1.2rem;
+      font-size: 1.3rem;
+      border: none;
+      border-radius: 12px;
+      background-color: #007bff;
+      color: #fff;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .menu-buttons button:hover {
+      background-color: #0056b3;
+      transform: translateY(-2px);
+    }
+
+    .alert-table {
+      max-width: 1000px;
+      margin: 0 auto;
+      margin-top: 2rem;
+      background-color: #fff;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      overflow-x: auto;
+    }
+
+    .alert-table h2 {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .alert-table table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 600px;
+    }
+
+    .alert-table th,
+    .alert-table td {
+      padding: 0.9rem;
+      border: 1px solid #ccc;
+      text-align: left;
+      font-size: 1.1rem;
+    }
+
+    .alert-table th {
+      background-color: #ff9800;
+      color: #fff;
+    }
+
+    .back-button-container {
+      text-align: center;
+      margin-top: 3rem;
+    }
+
+   .back-button-container button {
+  padding: 0.8rem 1.2rem;
+  font-size: 1rem;
+  background-color: #28a745;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+    .back-button-container button:hover {
+      background-color: #1e7e34;
+    }
+
+    @media screen and (min-width: 768px) {
+      body {
+        font-size: 1.2rem;
+      }
+
+      h1 {
+        font-size: 2.8rem;
+      }
+
+      .alert-table h2 {
+        font-size: 2.2rem;
+      }
+
+      .menu-buttons button {
+        font-size: 1.5rem;
+        padding: 1.5rem 2rem;
+      }
+
+      .alert-table th,
+      .alert-table td {
+        font-size: 1.2rem;
+      }
+
+       .back-button-container button {
+    padding: 1.2rem 2.5rem;
+    font-size: 1.5rem;
+    border-radius: 10px;
+  }
+}
+    @media screen and (min-width: 1024px) {
+      body {
+        font-size: 3rem;
+      }
+
+      h1 {
+        font-size: 5rem;
+      }
+
+      .alert-table h2 {
+        font-size: 5rem;
+      }
+
+      .menu-buttons button {
+        font-size: 6rem;
+      }
+
+      .alert-table th,
+      .alert-table td {
+        font-size: 5rem;
+      }
+
+      .back-button-container button {
+    padding: 1.5rem 3.5rem;
+    font-size: 1.8rem;
+    font-weight: 600;
+    border-radius: 12px;
+  }
+}
+  </style>
+</head>
+<body>
+
+  <h1>Staff Dashboard</h1>
+
+  <div class="menu-buttons">
+    <button onclick="location.href='mastercard.html'">Master Product Card</button>
+    <button onclick="location.href='neworder.html'">New Order Entry</button>
+    <button onclick="location.href='processtracking.html'">Process Tracking</button>
+  </div>
+
+  <div class="alert-table">
+    <h2>Upcoming Due Orders</h2>
+    <table id="dueOrdersTable">
+      <thead>
+        <tr>
+          <th>Customer</th>
+          <th>Part Number</th>
+          <th>Product</th>
+          <th>Due Date</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="back-button-container">
+    <button onclick="location.href='index.html'">Back to Main Menu</button>
+  </div>
+
+  <script>
+    function loadDueOrders() {
+      const orders = JSON.parse(localStorage.getItem("ordersV2")) || [];
+      const tbody = document.querySelector("#dueOrdersTable tbody");
+      tbody.innerHTML = "";
+      const today = new Date();
+      const limit = new Date();
+      limit.setDate(today.getDate() + 7);
+
+      orders.forEach(order => {
+        const due = new Date(order.dueDate);
+        if ((order.status === "In Process" || order.status === "Not Started") && due <= limit && due >= today) {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${order.customer}</td>
+            <td>${order.partNumber}</td>
+            <td>${order.productName}</td>
+            <td>${order.dueDate}</td>
+            <td>${order.status}</td>
+          `;
+          tbody.appendChild(row);
+        }
+      });
+    }
+
+    window.onload = loadDueOrders;
+    window.addEventListener("storage", loadDueOrders);
+  </script>
+</body>
+</html>

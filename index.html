@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Micro Labels Pvt Ltd</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    :root {
+      --primary-color: #005eff;
+      --gradient: linear-gradient(135deg, #005eff, #00c6ff);
+      --text-dark: #1a1a1a;
+      --bg-light: #f5f8ff;
+      --card-bg: #ffffff;
+      --shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: var(--gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      color: var(--text-dark);
+    }
+
+    .main-container {
+      background: var(--card-bg);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      padding: 40px 30px;
+      width: 90%;
+      max-width: 420px;
+      text-align: center;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    .logo {
+      width: 120px;
+      height: 120px;
+      object-fit: contain;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+      color: #003366;
+    }
+
+    p {
+      font-size: 1.2rem;
+      color: #555;
+      margin-bottom: 30px;
+    }
+
+    .dropdown-btn {
+      background: var(--primary-color);
+      color: #fff;
+      border: none;
+      padding: 16px 24px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border-radius: 12px;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .dropdown-btn:hover {
+      background: #0043c4;
+    }
+
+    .dropdown-content {
+      display: none;
+      flex-direction: column;
+      margin-top: 20px;
+      animation: slideDown 0.3s ease;
+    }
+
+    .dropdown-content button {
+      background-color: #f2f2f2;
+      border: none;
+      padding: 14px 18px;
+      margin-top: 12px;
+      font-size: 1.1rem;
+      border-radius: 10px;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .dropdown-content button:hover {
+      background-color: #e6e6e6;
+    }
+
+    .dropdown-content i {
+      font-size: 1.2rem;
+      color: #333;
+    }
+
+    .show {
+      display: flex;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @media (min-width: 1024px) {
+  .main-container {
+    max-width: 3000px;
+    max-height: 4000px;
+    padding: 80px 60px;
+  }
+
+  .logo {
+    width: 600px;
+    height: 600px;
+    margin-bottom: 30px;
+  }
+
+  h1 {
+    font-size: 10rem;
+    margin-bottom: 16px;
+  }
+
+  p {
+    font-size: 5rem;
+    margin-bottom: 36px;
+  }
+
+  .dropdown-btn {
+    font-size: 4rem;
+    padding: 20px 40px;
+  }
+
+  .dropdown-content button {
+    font-size: 4rem;
+    padding: 16px 20px;
+  }
+
+  .dropdown-content i {
+    font-size: 4rem;
+  }
+}
+
+  </style>
+</head>
+<body>
+  <div class="main-container">
+    <img src="./logo.jpg" alt="Logo" class="logo" />
+    <h1>Micro Labels Pvt Ltd</h1>
+    <p>Interface for Products & its Process</p>
+
+    <button class="dropdown-btn" onclick="toggleDropdown()">Select User</button>
+
+    <div id="dropdown" class="dropdown-content">
+      <button onclick="selectUser('CEO')"><i class="fas fa-user-tie"></i> CEO</button>
+      <button onclick="selectUser('Staff')"><i class="fas fa-user"></i> Manager/ Staff</button>
+      <button onclick="selectUser('Worker')"><i class="fas fa-hard-hat"></i> Operator/Co-operator</button>
+    </div>
+  </div>
+
+  <script>
+    function toggleDropdown() {
+      document.getElementById("dropdown").classList.toggle("show");
+    }
+
+    function selectUser(role) {
+      const pages = {
+        "CEO": "ceo.html",
+        "Staff": "staff.html",
+        "Worker": "worker.html",
+        };
+      if (pages[role]) {
+        window.location.href = pages[role];
+      } else {
+        alert("Page not found.");
+      }
+    }
+
+    window.onclick = function (e) {
+      if (!e.target.closest(".dropdown-btn")) {
+        document.getElementById("dropdown").classList.remove("show");
+      }
+    };
+  </script>
+</body>
+</html>

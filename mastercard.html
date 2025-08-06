@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Master Product Card - Micro Labels Pvt Ltd</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 2vw;
+      background-color: #f4f4f4;
+      color: #333;
+      font-size: 1.2rem;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 3rem;
+      margin-bottom: 2rem;
+    }
+
+    .form-section {
+      background-color: #fff;
+      padding: 2rem;
+      border-radius: 10px;
+      max-width: 800px;
+      margin: 0 auto 3rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    input, textarea, button {
+      width: 100%;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #fff;
+      margin-top: 2rem;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    th, td {
+      padding: 1rem;
+      border: 1px solid #ccc;
+      text-align: left;
+    }
+
+    th {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .download-button {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    @media screen and (max-width: 600px) {
+      body {
+        font-size: 0.9rem;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Master Product Card</h1>
+
+  <div class="form-section">
+    <input type="text" id="customer" placeholder="Customer Name">
+    <input type="text" id="partNumber" placeholder="Part Number">
+    <input type="text" id="productName" placeholder="Product Name">
+    <fieldset>
+      <legend><strong>Materials Required</strong></legend>
+      <textarea id="frontCard" placeholder="Front Card Requirement"></textarea>
+      <textarea id="backCard" placeholder="Back Card Requirement"></textarea>
+      <textarea id="adhesive" placeholder="Adhesive Requirement"></textarea>
+      <textarea id="lamination" placeholder="Lamination Requirement"></textarea>
+    </fieldset>
+    <button onclick="addMasterCard()">Save Master Card</button>
+  </div>
+
+  <div class="download-button">
+    <button onclick="downloadPDF()">Download as PDF</button>
+    <button onclick="downloadExcel()">Download as Excel</button>
+  </div>
+
+  <table id="masterTable">
+    <thead>
+      <tr>
+        <th>Customer</th>
+        <th>Part Number</th>
+        <th>Product Name</th>
+        <th>Front</th>
+        <th>Back</th>
+        <th>Adhesive</th>
+        <th>Lamination</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const MASTER_KEY = 'masterCards';
+
+    function addMasterCard() {
+      const customer = document.getElementById('customer').value.trim();
+      const partNumber = document.getElementById('partNumber').value.trim();
+      const productName = document.getElementById('productName').value.trim();
+      const frontCard = document.getElementById('frontCard').value.trim();
+      const backCard = document.getElementById('backCard').value.trim();
+      const adhesive = document.getElementById('adhesive').value.trim();
+      const lamination = document.getElementById('lamination').value.trim();
+
+      if (!customer || !partNumber || !productName) {
+        alert("Please fill in all mandatory fields.");
+        return;
+      }
+
+      const card = { customer, partNumber, productName, frontCard, backCard, adhesive, lamination };
+      const existing = JSON.parse(localStorage.getItem(MASTER_KEY)) || [];
+      existing.push(card);
+      localStorage.setItem(MASTER_KEY, JSON.stringify(existing));
+      displayMasterCards();
+
+      document.getElementById('customer').value = '';
+      document.getElementById('partNumber').value = '';
+      document.getElementById('productName').value = '';
+      document.getElementById('frontCard').value = '';
+      document.getElementById('backCard').value = '';
+      document.getElementById('adhesive').value = '';
+      document.getElementById('lamination').value = '';
+    }
+
+    function deleteCard(index) {
+      if (!confirm("Are you sure you want to delete this master card?")) return;
+      const existing = JSON.parse(localStorage.getItem(MASTER_KEY)) || [];
+      existing.splice(index, 1);
+      localStorage.setItem(MASTER_KEY, JSON.stringify(existing));
+      displayMasterCards();
+    }
+
+    function displayMasterCards() {
+      const tableBody = document.querySelector('#masterTable tbody');
+      tableBody.innerHTML = '';
+      const cards = JSON.parse(localStorage.getItem(MASTER_KEY)) || [];
+      cards.forEach((card, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${card.customer}</td>
+          <td>${card.partNumber}</td>
+          <td>${card.productName}</td>
+          <td>${card.frontCard}</td>
+          <td>${card.backCard}</td>
+          <td>${card.adhesive}</td>
+          <td>${card.lamination}</td>
+          <td><button onclick="deleteCard(${index})">Remove</button></td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+
+    function downloadPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const table = document.getElementById("masterTable");
+      let y = 10;
+      doc.setFontSize(10);
+      for (let row of table.rows) {
+        let x = 10;
+        for (let cell of row.cells) {
+          doc.text(cell.innerText, x, y);
+          x += 30;
+        }
+        y += 10;
+      }
+      doc.save("master_product_cards.pdf");
+    }
+
+    function downloadExcel() {
+      const cards = JSON.parse(localStorage.getItem(MASTER_KEY)) || [];
+      const worksheet = XLSX.utils.json_to_sheet(cards);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "MasterCards");
+      XLSX.writeFile(workbook, "master_product_cards.xlsx");
+    }
+
+    window.onload = displayMasterCards;
+  </script>
+
+  <div style="text-align: center; margin-top: 3rem;">
+    <button onclick="location.href='staff.html'" style="padding: 0.8rem 1.5rem; font-size: 1rem; background-color: #28a745; border: none; border-radius: 6px; color: white; cursor: pointer;">
+      Back to Staff Dashboard Menu
+    </button>
+  </div>
+  
+</body>
+</html>

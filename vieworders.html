@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>View All Work Orders - Micro Labels Pvt Ltd</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 2vw;
+      background-color: #f4f4f4;
+      color: #333;
+      font-size: 1rem;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .button-group {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    button {
+      padding: 0.8rem 1.5rem;
+      margin: 0.5rem;
+      font-size: 1rem;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    th, td {
+      padding: 12px;
+      border: 1px solid #ccc;
+      text-align: left;
+    }
+
+    th {
+      background-color: #007bff;
+      color: white;
+    }
+
+    @media screen and (max-width: 600px) {
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      button {
+        width: 100%;
+        margin-bottom: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>All Work Orders</h1>
+  <div class="button-group">
+    <button onclick="downloadExcel()">Download Excel</button>
+    <button onclick="downloadPDF()">Download PDF</button>
+    <button onclick="location.href='processtracking.html'">Back to Dashboard</button>
+  </div>
+
+  <table id="workOrdersTable">
+    <thead>
+      <tr>
+        <th>Customer</th>
+        <th>Part Number</th>
+        <th>Product Name</th>
+        <th>Type</th>
+        <th>PO Ref No</th>
+        <th>PO Qty</th>
+        <th>Process Qty</th>
+        <th>Order Date</th>
+        <th>Due Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Data rows will be inserted here -->
+    </tbody>
+  </table>
+
+  <script>
+    const workOrders = JSON.parse(localStorage.getItem("workOrders")) || [];
+    const tableBody = document.querySelector("#workOrdersTable tbody");
+
+    workOrders.forEach(order => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${order.customer}</td>
+        <td>${order.partNumber}</td>
+        <td>${order.productName}</td>
+        <td>${order.type}</td>
+        <td>${order.poRef}</td>
+        <td>${order.poQty}</td>
+        <td>${order.processQty}</td>
+        <td>${order.orderDate}</td>
+        <td>${order.dueDate}</td>
+      `;
+      tableBody.appendChild(row);
+    });
+
+    function downloadExcel() {
+      const table = document.getElementById("workOrdersTable");
+      const wb = XLSX.utils.table_to_book(table, {sheet: "Work Orders"});
+      XLSX.writeFile(wb, "WorkOrders.xlsx");
+    }
+
+    async function downloadPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF('l', 'pt', 'a4');
+      const table = document.getElementById("workOrdersTable");
+
+      let data = [];
+      let headers = [];
+      table.querySelectorAll("thead th").forEach(th => headers.push(th.innerText));
+      table.querySelectorAll("tbody tr").forEach(tr => {
+        let row = [];
+        tr.querySelectorAll("td").forEach(td => row.push(td.innerText));
+        data.push(row);
+      });
+
+      doc.autoTable({
+        head: [headers],
+        body: data,
+        margin: { top: 40 },
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [0, 123, 255] }
+      });
+
+      doc.save("WorkOrders.pdf");
+    }
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Process Tracking - Work Order Generation - Micro Labels Pvt Ltd</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 2vw;
+      background-color: #f4f4f4;
+      color: #333;
+      font-size: 1.2rem;
+    }
+
+    h1, h2 {
+      text-align: center;
+    }
+
+    .section {
+      background-color: #fff;
+      padding: 2rem;
+      border-radius: 10px;
+      margin: 2rem auto;
+      max-width: 1000px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+
+    th, td {
+      padding: 1rem;
+      border: 1px solid #ccc;
+      text-align: left;
+    }
+
+    th {
+      background-color: #007bff;
+      color: #fff;
+    }
+
+    input, select, button {
+      width: 100%;
+      padding: 0.8rem;
+      margin-bottom: 1rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .action-btn {
+      background-color: red;
+      color: white;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+<h2>Work Order Generation</h2>
+
+  <div class="section" id="workOrder">
+    <h3>Generate New Work Order</h3>
+    <label for="customer">Customer</label>
+    <input type="text" id="customer" placeholder="Enter customer name" oninput="autoFillFromMaster()" />
+
+    <label for="partNumber">Part Number</label>
+    <input type="text" id="partNumber" placeholder="Enter part number" oninput="autoFillFromMaster()" />
+
+    <label for="productName">Product Name</label>
+    <input type="text" id="productName" placeholder="Enter product name" oninput="autoFillFromMaster()" />
+
+    <label for="productType">Type</label>
+    <input type="text" id="productType" placeholder="Enter product type" />
+
+    <label for="poRef">PO Reference Number</label>
+    <input type="text" id="poRef" placeholder="Enter PO reference number" />
+
+    <label for="poQty">PO Quantity</label>
+    <input type="number" id="poQty" placeholder="Enter PO quantity" oninput="calculateProcessQty()" />
+
+    <label for="processQty">Process Quantity (+5-10%)</label>
+    <input type="number" id="processQty" placeholder="Editable Process quantity" />
+
+    <label for="orderDate">Order Date</label>
+    <input type="date" id="orderDate" />
+
+    <label for="dueDate">Due Date</label>
+    <input type="date" id="dueDate" />
+
+    <button onclick="addWorkOrder()">Add Work Order</button>
+
+    <table id="workOrderTable">
+      <thead>
+        <tr>
+          <th>WO Number</th>
+          <th>Customer</th>
+          <th>Part No</th>
+          <th>Product Name</th>
+          <th>Type</th>
+          <th>PO Ref</th>
+          <th>PO Qty</th>
+          <th>Process Qty</th>
+          <th>Order Date</th>
+          <th>Due Date</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script>
+    const MASTER_KEY = 'masterCards';
+    const WORK_ORDER_KEY = 'workOrders';
+
+    function autoFillFromMaster() {
+      const customer = document.getElementById('customer').value.trim();
+      const partNumber = document.getElementById('partNumber').value.trim();
+      const masters = JSON.parse(localStorage.getItem(MASTER_KEY)) || [];
+      const match = masters.find(m => m.customer === customer && m.partNumber === partNumber);
+      if (match) {
+        document.getElementById('productName').value = match.productName;
+      }
+    }
+
+    function calculateProcessQty() {
+      const poQty = parseInt(document.getElementById('poQty').value);
+      if (!isNaN(poQty)) {
+        const extra = Math.ceil(poQty * 0.1);
+        document.getElementById('processQty').value = poQty + extra;
+      }
+    }
+
+    function generateWorkOrderNumber() {
+      const timestamp = new Date().getTime();
+      return 'WO' + timestamp;
+    }
+
+    function addWorkOrder() {
+      const order = {
+        woNumber: generateWorkOrderNumber(),
+        customer: document.getElementById('customer').value.trim(),
+        partNumber: document.getElementById('partNumber').value.trim(),
+        productName: document.getElementById('productName').value.trim(),
+        type: document.getElementById('productType').value.trim(),
+        poRef: document.getElementById('poRef').value.trim(),
+        poQty: document.getElementById('poQty').value,
+        processQty: document.getElementById('processQty').value,
+        orderDate: document.getElementById('orderDate').value,
+        dueDate: document.getElementById('dueDate').value
+      };
+
+      if (!order.customer || !order.partNumber || !order.productName || !order.poQty || !order.processQty || !order.orderDate || !order.dueDate) {
+        alert('Please fill in all required fields.');
+        return;
+      }
+
+      const existing = JSON.parse(localStorage.getItem(WORK_ORDER_KEY)) || [];
+      existing.push(order);
+      localStorage.setItem(WORK_ORDER_KEY, JSON.stringify(existing));
+      displayWorkOrders();
+      document.querySelectorAll('#workOrder input').forEach(input => input.value = '');
+    }
+
+    function deleteOrder(index) {
+      if (confirm('Are you sure you want to delete this work order?')) {
+        const orders = JSON.parse(localStorage.getItem(WORK_ORDER_KEY)) || [];
+        orders.splice(index, 1);
+        localStorage.setItem(WORK_ORDER_KEY, JSON.stringify(orders));
+        displayWorkOrders();
+      }
+    }
+
+    function displayWorkOrders() {
+      const orders = JSON.parse(localStorage.getItem(WORK_ORDER_KEY)) || [];
+      const tbody = document.querySelector('#workOrderTable tbody');
+      tbody.innerHTML = '';
+      orders.forEach((order, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${order.woNumber}</td>
+          <td>${order.customer}</td>
+          <td>${order.partNumber}</td>
+          <td>${order.productName}</td>
+          <td>${order.type}</td>
+          <td>${order.poRef}</td>
+          <td>${order.poQty}</td>
+          <td>${order.processQty}</td>
+          <td>${order.orderDate}</td>
+          <td>${order.dueDate}</td>
+          <td><button class="action-btn" onclick="deleteOrder(${index})">Delete</button></td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    window.onload = displayWorkOrders;
+  </script>
+
+  <div style="text-align:center; margin-top: 2rem;">
+    <button onclick="location.href='processtracking.html'">Back to Dashboard</button>
+  </div>
+
+</body>
+</html>

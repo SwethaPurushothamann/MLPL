@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Process Tracking - Micro Labels Pvt Ltd</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 2vw;
+      background-color: #f4f4f4;
+      color: #333;
+      font-size: 1.2rem;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 3rem;
+      margin-bottom: 2rem;
+    }
+
+    .section-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      justify-content: center;
+    }
+
+    .process-card {
+      background-color: #fff;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      flex: 1 1 300px;
+      max-width: 400px;
+    }
+
+    .process-card h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .process-card button {
+      display: block;
+      margin: 0.5rem 0;
+      padding: 0.8rem 1.2rem;
+      font-size: 1rem;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .process-card button:hover {
+      background-color: #0056b3;
+    }
+
+    @media screen and (max-width: 600px) {
+      h1 {
+        font-size: 2rem;
+      }
+
+      .process-card h2 {
+        font-size: 1.3rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Process Tracking</h1>
+  <div class="section-grid">
+    <div class="process-card">
+      <h2>1. Work Order Generation</h2>
+      <button onclick="location.href='Workordergen.html'">Generate New Order</button>
+      <button onclick="location.href='vieworders.html'">View All Work Orders</button>
+    </div>
+
+    <div class="process-card">
+      <h2>2. Stores</h2>
+      <button onclick="location.href='stores-issue.html'">Issue Materials</button>
+      <button onclick="location.href='inventory.html'">Check Inventory</button>
+    </div>
+
+    <div class="process-card">
+      <h2>3. Material Cutting</h2>
+      <button onclick="location.href='cutting-start.html'">Start Cutting</button>
+      <button onclick="location.href='cutting-history.html'">View Cutting History</button>
+    </div>
+
+    <div class="process-card">
+      <h2>4. Pre Press</h2>
+      <button onclick="location.href='upload-artwork.html'">Upload Artwork</button>
+      <button onclick="location.href='design-approval.html'">Approve Designs</button>
+    </div>
+
+    <div class="process-card">
+      <h2>5. Printing Allotment</h2>
+      <button onclick="location.href='assign-printer.html'">Assign Printer</button>
+      <button onclick="location.href='printing-schedule.html'">View Schedule</button>
+    </div>
+
+    <div class="process-card">
+      <h2>6. Punching</h2>
+      <button onclick="location.href='punching-record.html'">Record Punching</button>
+      <button onclick="location.href='quality-check.html'">Quality Check</button>
+    </div>
+
+    <div class="process-card">
+      <h2>7. Lamination</h2>
+      <button onclick="location.href='start-lamination.html'">Start Lamination</button>
+      <button onclick="location.href='track-lamination.html'">Track Progress</button>
+    </div>
+
+    <div class="process-card">
+      <h2>8. Punching (2nd Stage)</h2>
+      <button onclick="location.href='punching-stage2.html'">Continue Punching</button>
+      <button onclick="location.href='final-punch-log.html'">Final Punch Log</button>
+    </div>
+
+    <div class="process-card">
+      <h2>9. Sample Inspection</h2>
+      <button onclick="location.href='upload-sample.html'">Upload Sample</button>
+      <button onclick="location.href='approve-sample.html'">Approve Sample</button>
+    </div>
+
+    <div class="process-card">
+      <h2>10. Final Inspection</h2>
+      <button onclick="location.href='inspect-final.html'">Inspect Order</button>
+      <button onclick="location.href='inspection-report.html'">Inspection Report</button>
+    </div>
+
+    <div class="process-card">
+      <h2>11. Packing Standard</h2>
+      <button onclick="location.href='packing-instructions.html'">Packing Instructions</button>
+      <button onclick="location.href='mark-packed.html'">Mark as Packed</button>
+    </div>
+
+    <div class="process-card">
+      <h2>12. Invoice</h2>
+      <button onclick="location.href='generate-invoice.html'">Generate Invoice</button>
+      <button onclick="location.href='view-invoices.html'">View All Invoices</button>
+    </div>
+  </div>
+<div style="text-align: center; margin-top: 3rem;">
+    <button onclick="location.href='staff.html'" style="padding: 0.8rem 1.5rem; font-size: 1rem; background-color: #28a745; border: none; border-radius: 6px; color: white; cursor: pointer;">
+      Back to Staff Dashboard Menu
+    </button>
+  </div>
+</body>
+</html>
